@@ -71,9 +71,10 @@ def popular_dados_falsos(gestor_estoque, caixa):
     print("[Faker]: Estoque abastecido por lotes e comandas iniciais abertas com sucesso!")
 
 def exibir_menu():
-    print("\n=======================================")
-    print("      SISTEMA DE GESTÃO RESTAURANTE     ")
-    print("=======================================")
+    print("\n==================================================")
+    print("==================================================")
+    print("      SISTEMA DE GESTÃO RESTAURANTE * FATEC * ")
+    print("==================================================")
     print("1 - Abrir Nova Comanda")
     print("2 - Lançar Item na Comanda")
     print("3 - Consultar Consumo da Comanda")
@@ -84,7 +85,7 @@ def exibir_menu():
     print("8 - Relatório de Consumo por Cliente")
     print("9 - Forçar Carga de Dados Falsos (Faker)")
     print("0 - Salvar e Sair")
-    print("=======================================")
+    print("==================================================")
 
 def main():
     gestor_estoque, caixa = carregar_sistema()
