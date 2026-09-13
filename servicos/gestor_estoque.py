@@ -34,7 +34,8 @@ class GestorEstoque:
         return novo_no_estoque.fila
 
     def abastecer_produto(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
-        novo_lote = Produto(nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade)
+        # Garante que o nome do produto seja registrado sempre em minúsculo no lote
+        novo_lote = Produto(nome.lower(), preco_compra, preco_venda, data_compra, data_vencimento, quantidade)
         fila = self._buscar_ou_criar_fila(nome)
         fila.enfileirar(novo_lote)
 
@@ -53,17 +54,18 @@ class GestorEstoque:
                 if produto_lote.quantidade <= quantidade_necessaria:
                     quantidade_necessaria -= produto_lote.quantidade
                     fila.desenfileirar()
-            else:
-                # O lote atual tem mais do que o necessário; apenas subtrai a quantidade
-                produto_lote.quantidade -= quantidade_necessaria
-                quantidade_necessaria = 0
-                
-        item_atual = item_atual.proximo
+                else:
+                    # CORREÇÃO: O else agora está perfeitamente indentado dentro do while interno
+                    produto_lote.quantidade -= quantidade_necessaria
+                    quantidade_necessaria = 0
+            
+            # CORREÇÃO: Esta linha avançava incorretamente fora do laço principal, travando o sistema
+            item_atual = item_atual.proximo
 
     def obter_quantidade_total(self, nome_produto):
         """Soma a quantidade disponível de todos os lotes ativos de um produto."""
         fila = self._buscar_ou_criar_fila(nome_produto)
-        total = None
+        total = 0  # CORREÇÃO: Inicializado com 0 para permitir operações matemáticas simples
         atual = fila.inicio
         while atual is not None:
             total += atual.conteudo.quantidade
