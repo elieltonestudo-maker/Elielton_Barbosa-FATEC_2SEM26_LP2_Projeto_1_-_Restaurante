@@ -114,9 +114,20 @@ def main():
 
         elif opcao == "2":
             try:
+                # PAINEL VISUAL DO CARDÁPIO PARA O USUÁRIO NÃO ERRAR A DIGITAÇÃO
+                print("\n---------------------------------------")
+                print("           CARDÁPIO DISPONÍVEL         ")
+                print("---------------------------------------")
+                print(" * hamburguer       * lanche natural  ")
+                print(" * hot dog          * refrigerante    ")
+                print(" * batata frita     * suco natural    ")
+                print(" * agua mineral     * cerveja         ")
+                print("---------------------------------------")
+                
                 num = int(input("Número da Comanda: "))
-                produto = input("Nome do Produto: ").strip().lower() # PADRONIZADO .lower()
+                produto = input("Nome do Produto do Cardápio: ").strip().lower()
                 qtd = int(input("Quantidade: "))
+                
                 if qtd <= 0:
                     print("\n[Erro]: A quantidade deve ser maior que zero.")
                     continue
@@ -126,6 +137,7 @@ def main():
                     print("\n[Erro]: Verifique se a comanda existe ou se o produto tem lotes no estoque.")
             except ValueError:
                 print("\n[Erro]: Entrada numérica inválida.")
+
 
         elif opcao == "3":
             try:
