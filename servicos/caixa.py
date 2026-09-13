@@ -21,7 +21,7 @@ class Caixa:
         return True
 
     def lancar_item_comanda(self, numero_comanda, nome_produto, quantidade):
-        """Busca o preço do produto no estoque e o adiciona na comanda do cliente com trava de segurança."""
+        """Busca o preço do produto no estoque e o adiciona na comanda do cliente com trava de saldo real."""
         comanda = self.comandas_ativas.buscar_por_numero(numero_comanda)
         if comanda is None:
             return False  # Comanda não encontrada
@@ -30,17 +30,21 @@ class Caixa:
         nome_padrao = nome_produto.lower().strip()
         fila = self.gestor_estoque._buscar_ou_criar_fila(nome_padrao)
         
-        # --- TRAVA DE SEGURANÇA REAL ---
-        # Se o produto não possui nenhum lote ou se a quantidade total no estoque for 0
-        if fila.inicio is None or self.gestor_estoque.obter_quantidade_total(nome_padrao) <= 0:
-            print(f"\n[Bloqueado]: O produto '{nome_produto}' nao existe no cardapio ou esta esgotado!")
-            return False  # Rejeita o lançamento e impede que entre na comanda
+        # Obtém a quantidade total física disponível atualmente somando os lotes
+        estoque_disponivel = self.gestor_estoque.obter_quantidade_total(nome_padrao)
+        
+        # --- TRAVA DE SALDO EM TEMPO REAL ---
+        # Bloqueia se o produto não tiver lotes ativos OU se o cliente pedir mais do que tem disponível
+        if fila.inicio is None or estoque_disponivel < int(quantidade):
+            print(f"\n[Bloqueado]: Saldo insuficiente! '{nome_produto}' possui apenas {estoque_disponivel} unidades no estoque.")
+            return False  # Rejeita o lançamento imediatamente
         
         preco_venda = fila.inicio.conteudo.preco_venda
         
-        # Adiciona o item na comanda de forma encadeada apenas se passou na trava
+        # Adiciona o item na comanda de forma encadeada apenas se passou na trava de quantidade
         comanda.adicionar_item(nome_padrao, quantidade, preco_venda)
         return True
+
 
     def fechar_e_pagar(self, numero_comanda, forma_pagamento, nome_pagador):
         """Calcula o total, executa a baixa FIFO no estoque e encerra a comanda."""

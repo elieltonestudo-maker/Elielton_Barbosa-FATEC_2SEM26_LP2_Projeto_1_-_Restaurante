@@ -114,20 +114,15 @@ def main():
 
         elif opcao == "2":
             try:
-                # 1. Pede primeiro o número da comanda para validação imediata
                 num = int(input("Número da Comanda: "))
                 comanda = caixa.comandas_ativas.buscar_por_numero(num)
                 
-                # TRAVA: Se a comanda não estiver aberta no salão, barra na hora
                 if comanda is None:
-                    print(f"\n[Bloqueado]: A comanda # {num} nao esta aberta ou nao existe no salao!")
                     continue
                 
-                # SE EXISTIR: Mostra na tela de quem é a comanda antes de continuar
                 print(f" -> Comanda ativa localizada! Cliente dono: {comanda.nome_cliente.upper()}")
                 print("-" * 40)
                 
-                # 2. Mostra o painel visual do cardápio para o usuário não errar
                 print("           CARDÁPIO DISPONÍVEL         ")
                 print("---------------------------------------")
                 print(" * hamburguer       * lanche natural  ")
@@ -137,16 +132,19 @@ def main():
                 print("---------------------------------------")
                 
                 produto = input("Nome do Produto do Cardápio: ").strip().lower()
-                qtd = int(input("Quantidade: "))
+                
+                # BUSCA O SALDO EM TEMPO REAL ANTES DE PEDIR A QUANTIDADE
+                total_disponivel = gestor_estoque.obter_quantidade_total(produto)
+                
+                # SOLICITA A QUANTIDADE JÁ EXIBINDO O SALDO DISPONÍVEL NA MESMA LINHA
+                qtd = int(input(f"Disponíveis: {total_disponivel}, Digite a Quantidade: "))
                 
                 if qtd <= 0:
                     print("\n[Erro]: A quantidade deve ser maior que zero.")
                     continue
                 
                 if caixa.lancar_item_comanda(num, produto, qtd):
-                    print(f"\n[Sucesso]: {qtd}x '{produto}' adicionado(s) à comanda # {num} ( {comanda.nome_cliente} ).")
                 else:
-                    print("\n[Erro]: Nao foi possivel lancar. Verifique se o produto existe no estoque.")
             except ValueError:
                 print("\n[Erro]: Entrada numérica inválida.")
 
