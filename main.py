@@ -38,16 +38,16 @@ def popular_dados_falsos(gestor_estoque, caixa):
     """Gera dados iniciais fictícios usando a biblioteca Faker para testes rápidos."""
     print("\n[Faker]: Populando o sistema com dados automáticos de teste...")
     
-    # 1. Alimenta o estoque com alguns produtos padrão (lotes com datas variadas para testar o FIFO)
+    # Padronizado para minúsculas para consistência
     produtos_padrao = [
-        {"nome": "Hamburguer", "pc": 10.0, "pv": 25.0},
-        {"nome": "Lanche Natural", "pc": 8.0, "pv": 22.0},
-        {"nome": "Hot dog", "pc": 9.0, "pv": 23.5},
-        {"nome": "Refrigerante", "pc": 2.5, "pv": 6.0},
-        {"nome": "Batata Frita", "pc": 4.0, "pv": 15.0},
-        {"nome": "Suco Natural", "pc": 3.5, "pv": 8.0},
-        {"nome": "água mineral", "pc": 1.5, "pv": 4.5},
-        {"nome": "Cerveja", "pc": 4.0, "pv": 9.0}
+        {"nome": "hamburguer", "pc": 10.0, "pv": 25.0},
+        {"nome": "lanche natural", "pc": 8.0, "pv": 22.0},
+        {"nome": "hot dog", "pc": 9.0, "pv": 23.5},
+        {"nome": "refrigerante", "pc": 2.5, "pv": 6.0},
+        {"nome": "batata frita", "pc": 4.0, "pv": 15.0},
+        {"nome": "suco natural", "pc": 3.5, "pv": 8.0},
+        {"nome": "agua mineral", "pc": 1.5, "pv": 4.5},
+        {"nome": "cerveja", "pc": 4.0, "pv": 9.0}
     ]
     
     hoje = datetime.now()
@@ -65,8 +65,8 @@ def popular_dados_falsos(gestor_estoque, caixa):
     for num_comanda in range(1, 4):
         nome_cliente = fake.first_name()
         caixa.abrir_comanda(num_comanda, nome_cliente)
-        # Lança um item inicial automático para teste
-        caixa.lancar_item_comanda(num_comanda, "Hamburguer", 1)
+        # Lança o item padrão também em letras minúsculas
+        caixa.lancar_item_comanda(num_comanda, "hamburguer", 1)
 
     print("[Faker]: Estoque abastecido por lotes e comandas iniciais abertas com sucesso!")
 
@@ -114,7 +114,7 @@ def main():
         elif opcao == "2":
             try:
                 num = int(input("Número da Comanda: "))
-                produto = input("Nome do Produto: ").strip()
+                produto = input("Nome do Produto: ").strip().lower() # PADRONIZADO .lower()
                 qtd = int(input("Quantidade: "))
                 if qtd <= 0:
                     print("\n[Erro]: A quantidade deve ser maior que zero.")
@@ -171,7 +171,7 @@ def main():
 
         elif opcao == "5":
             try:
-                nome = input("Nome do Produto: ").strip()
+                nome = input("Nome do Produto: ").strip().lower() # PADRONIZADO .lower()
                 pc = float(input("Preço de Compra (R$): "))
                 pv = float(input("Preço de Venda (R$): "))
                 qtd = int(input("Quantidade do Lote: "))
@@ -184,8 +184,8 @@ def main():
                 print("\n[Erro]: Valores numéricos digitados incorretamente.")
 
         elif opcao == "6":
-            nome = input("Nome do Produto para consulta: ").strip()
-            total = gestor_estoque.obter_quantity_total(nome) if hasattr(gestor_estoque, 'obter_quantity_total') else gestor_estoque.obter_quantidade_total(nome)
+            nome = input("Nome do Produto para consulta: ").strip().lower() # PADRONIZADO .lower()
+            total = gestor_estoque.obter_quantidade_total(nome)
             print(f"\nEstoque Atual de '{nome}': {total} unidades distribuídas em lotes.")
 
         elif opcao == "7":
