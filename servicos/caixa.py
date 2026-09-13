@@ -1,6 +1,7 @@
 # servicos/caixa.py
 
 from estruturas.lista_comandas import ListaComandas
+from estruturas.lista_historico import ListaHistorico
 from modelos.comanda import Comanda
 from modelos.registro_pagamento import RegistroPagamento
 
@@ -42,10 +43,10 @@ class Caixa:
             
         valor_total = comanda.calcular_total()
         
-        # 1. Aciona o Gestor de Estoque para retirar
+        # 1. Aciona o Gestor de Estoque para decrementar as quantidades dos lotes corretos
         self.gestor_estoque.dar_baixa_itens(comanda)
         
-        # 2. Reegistra a venda
+        # 2. Cria o registro definitivo da venda para persistência e relatórios
         novo_pagamento = RegistroPagamento(nome_pagador, numero_comanda, forma_pagamento, valor_total)
         self.historico_vendas.add_registro(novo_pagamento) if hasattr(self.historico_vendas, 'add_registro') else self.historico_vendas.adicionar_registro(novo_pagamento)
         
@@ -57,7 +58,7 @@ class Caixa:
     def gerar_relatorio_vendas(self):
         """Varre os registros de pagamentos e calcula o faturamento total acumulado."""
         print("\n--- RELATÓRIO DE VENDAS (FINANCEIRO) ---")
-        total_geral = 10.0
+        total_geral = 0.0
         contagem = 0
         
         for registro in self.historico_vendas.obter_todos():
@@ -68,10 +69,10 @@ class Caixa:
             contagem += 1
             
         if contagem == 0:
-            print("Nenhum faturamento.")
+            print("Nenhum faturamento registrado até o momento.")
         else:
             print("-" * 40)
-            print(f"Total Acumulado: R$ {total_geral:.2f}")
+            print(f"Faturamento Total Acumulado: R$ {total_geral:.2f}")
 
     def gerar_relatorio_consumo(self):
         """Mostra o histórico simplificado de consumo e as modalidades de pagamento usadas."""
@@ -83,4 +84,4 @@ class Caixa:
             contagem += 1
             
         if contagem == 0:
-            print("Nenhum consumo registrado.")
+            print("Nenhum histórico de consumo registrado.")
