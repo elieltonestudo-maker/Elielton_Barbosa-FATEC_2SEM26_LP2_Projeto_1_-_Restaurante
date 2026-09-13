@@ -106,7 +106,7 @@ def main():
                     print("\n[Erro]: O nome do cliente não pode ser vazio.")
                     continue
                 if caixa.abrir_comanda(num, nome):
-                    print(f"\n[Sucesso]: Comanda #{num} aberta para {nome}.")
+                    print(f"\n[Sucesso]: Comanda # {num} aberta para {nome}.")
                 else:
                     print("\n[Erro]: Esta comanda já está ativa no salão.")
             except ValueError:
@@ -114,8 +114,20 @@ def main():
 
         elif opcao == "2":
             try:
-                # PAINEL VISUAL DO CARDÁPIO PARA O USUÁRIO NÃO ERRAR A DIGITAÇÃO
-                print("\n---------------------------------------")
+                # 1. Pede primeiro o número da comanda para validação imediata
+                num = int(input("Número da Comanda: "))
+                comanda = caixa.comandas_ativas.buscar_por_numero(num)
+                
+                # TRAVA: Se a comanda não estiver aberta no salão, barra na hora
+                if comanda is None:
+                    print(f"\n[Bloqueado]: A comanda # {num} nao esta aberta ou nao existe no salao!")
+                    continue
+                
+                # SE EXISTIR: Mostra na tela de quem é a comanda antes de continuar
+                print(f" -> Comanda ativa localizada! Cliente dono: {comanda.nome_cliente.upper()}")
+                print("-" * 40)
+                
+                # 2. Mostra o painel visual do cardápio para o usuário não errar
                 print("           CARDÁPIO DISPONÍVEL         ")
                 print("---------------------------------------")
                 print(" * hamburguer       * lanche natural  ")
@@ -124,19 +136,20 @@ def main():
                 print(" * agua mineral     * cerveja         ")
                 print("---------------------------------------")
                 
-                num = int(input("Número da Comanda: "))
                 produto = input("Nome do Produto do Cardápio: ").strip().lower()
                 qtd = int(input("Quantidade: "))
                 
                 if qtd <= 0:
                     print("\n[Erro]: A quantidade deve ser maior que zero.")
                     continue
+                
                 if caixa.lancar_item_comanda(num, produto, qtd):
-                    print(f"\n[Sucesso]: {qtd}x '{produto}' adicionado(s) à comanda #{num}.")
+                    print(f"\n[Sucesso]: {qtd}x '{produto}' adicionado(s) à comanda # {num} ( {comanda.nome_cliente} ).")
                 else:
-                    print("\n[Erro]: Verifique se a comanda existe ou se o produto tem lotes no estoque.")
+                    print("\n[Erro]: Nao foi possivel lancar. Verifique se o produto existe no estoque.")
             except ValueError:
                 print("\n[Erro]: Entrada numérica inválida.")
+
 
 
         elif opcao == "3":
@@ -144,7 +157,7 @@ def main():
                 num = int(input("Número da Comanda: "))
                 comanda = caixa.comandas_ativas.buscar_por_numero(num)
                 if comanda:
-                    print(f"\n--- Comanda #{comanda.numero} - Cliente: {comanda.nome_cliente} ---")
+                    print(f"\n--- Comanda # {comanda.numero} - Cliente: {comanda.nome_cliente} ---")
                     print(f"Abertura: {comanda.data_hora_abertura}")
                     print("-" * 40)
                     atual = comanda.primeiro_item
@@ -166,10 +179,15 @@ def main():
                     print("\n[Erro]: Comanda não encontrada.")
                     continue
                     
+                # SE EXISTIR: Exibe o nome do cliente em destaque logo no início do painel de fechamento
+                print(f"\n -> Fechamento localizado! Cliente: {comanda.nome_cliente.upper()}")
+                print("-" * 40)
+                
                 total = comanda.calcular_total()
-                print(f"\nValor Total da Conta: R$ {total:.2f}")
+                print(f"Valor Total da Conta: R$ {total:.2f}")
                 print("Formas de Pagamento: PIX, Cartao, Dinheiro, Confianca")
                 forma = input("Digite a forma de pagamento: ").strip()
+                
                 pagador = input("Nome de quem está pagando (Deixe vazio para o nome do cliente): ").strip()
                 if pagador == "":
                     pagador = comanda.nome_cliente
@@ -181,6 +199,7 @@ def main():
                     print("\n[Erro]: Falha ao processar o fechamento.")
             except ValueError:
                 print("\n[Erro]: Digite um número válido.")
+
 
         elif opcao == "5":
             try:

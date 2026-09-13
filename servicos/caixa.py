@@ -21,7 +21,7 @@ class Caixa:
         return True
 
     def lancar_item_comanda(self, numero_comanda, nome_produto, quantidade):
-        """Busca o preço do produto no estoque e o adiciona na comanda do cliente."""
+        """Busca o preço do produto no estoque e o adiciona na comanda do cliente com trava de segurança."""
         comanda = self.comandas_ativas.buscar_por_numero(numero_comanda)
         if comanda is None:
             return False  # Comanda não encontrada
@@ -30,14 +30,15 @@ class Caixa:
         nome_padrao = nome_produto.lower().strip()
         fila = self.gestor_estoque._buscar_ou_criar_fila(nome_padrao)
         
-        # Se a fila de lotes do produto estiver vazia, define um preço padrão de segurança
-        # para o sistema não travar durante os testes da banca se o lote não foi abastecido
-        if fila.inicio is None:
-            preco_venda = 10.0  # Preço padrão de contingência
-        else:
-            preco_venda = fila.inicio.conteudo.preco_venda
+        # --- TRAVA DE SEGURANÇA REAL ---
+        # Se o produto não possui nenhum lote ou se a quantidade total no estoque for 0
+        if fila.inicio is None or self.gestor_estoque.obter_quantidade_total(nome_padrao) <= 0:
+            print(f"\n[Bloqueado]: O produto '{nome_produto}' nao existe no cardapio ou esta esgotado!")
+            return False  # Rejeita o lançamento e impede que entre na comanda
         
-        # Adiciona o item na comanda de forma encadeada
+        preco_venda = fila.inicio.conteudo.preco_venda
+        
+        # Adiciona o item na comanda de forma encadeada apenas se passou na trava
         comanda.adicionar_item(nome_padrao, quantidade, preco_venda)
         return True
 
@@ -72,7 +73,7 @@ class Caixa:
         contagem = 0
         
         for registro in self.historico_vendas.obter_todos():
-            print(f"[{registro.data_hora}] Comanda #{registro.numero_comanda} | "
+            print(f"[{registro.data_hora}] Comanda # {registro.numero_comanda} | "
                   f"Pagador: {registro.nome_pagador} | "
                   f"Tipo: {registro.forma_pagamento} | Total: R$ {registro.valor_total:.2f}")
             total_geral += registro.valor_total
