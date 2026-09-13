@@ -15,14 +15,18 @@ class GestorEstoque:
         self.produtos_estoque = None
 
     def _buscar_ou_criar_fila(self, nome_produto):
+        """Busca a fila de um produto convertendo o argumento para minusculo."""
+        nome_busca = nome_produto.lower()  # Converte o nome do produto para minúsculas para busca
         atual = self.produtos_estoque
         anterior = None
         while atual is not None:
-            if atual.nome_produto.lower() == nome_produto.lower():
+            # Compara o nome salvo com o nome da busca (ambos em minusculo)
+            if atual.nome_produto.lower() == nome_busca:
                 return atual.fila
             anterior = atual
             atual = atual.proximo
-        novo_no_estoque = NoEstoque(nome_produto)
+        # Se não encontrou, cria um novo nó para o produto e adiciona no início da lista
+        novo_no_estoque = NoEstoque(nome_busca)
         if anterior is None:
             self.produtos_estoque = novo_no_estoque
         else:
