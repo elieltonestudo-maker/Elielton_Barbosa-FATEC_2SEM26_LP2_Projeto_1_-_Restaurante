@@ -8,7 +8,7 @@ O objetivo principal é aplicar os conceitos de Orientação a Objetos e estrutu
 
 ## 🛠️ Funcionalidades do Sistema
 
-- **Controle de Comandas:** Abertura por cliente, inserção e remoção dinâmica de itens (refeições e bebidas) antes do fechamento.
+- **Controle de Comandas:** Abertura por cliente, inserção e remoção dinâmica de itens antes do fechamento.
 - **Controle de Estoque:** Armazenamento de lotes perecíveis contendo nome, preços de compra/venda, datas e quantidade.
 - **Regra FIFO (PEPS):** Prioridade automática de saída para os produtos com data de compra mais antiga (lotes mais velhos).
 - **Controle de Pagamento:** Fechamento de comandas aceitando PIX, Cartão, Dinheiro e modalidade de "Confiança".
@@ -18,34 +18,58 @@ O objetivo principal é aplicar os conceitos de Orientação a Objetos e estrutu
 
 ---
 
+## 🧠 Diferenciais Técnicos e Usabilidade (Homologados)
+
+- **Suporte Completo a Case-Insensitive:** O sistema realiza a busca de nomes padronizados em minúsculas (`.lower().strip()`). O usuário pode digitar `HAMBURGUER`, `Hamburguer` ou `hamburguer` que o sistema reconhece e processa perfeitamente.
+- **Travas de Segurança:** Validação em tempo real para impedir o lançamento de produtos que não existem no cardápio ou que estão esgotados.
+- **Feedback Visual:** Exibição do nome do cliente em tempo real na tela ao selecionar a comanda para lançamento de itens ou no fechamento da conta.
+- **Robustez:** Tratamento de exceções com blocos `try/except` para impedir o fechamento repentino do terminal por digitação inválida (letras em campos de números).
+
+---
+
 ## 🏗️ Estruturas de Dados Customizadas
 
 Para atender às restrições do projeto e exercitar o encapsulamento, foram desenvolvidas as seguintes estruturas manuais baseadas em nós (`No`):
 1. **Fila Dinâmica (`FilaEstoque`):** Utilizada no controle de estoque para garantir a saída sequencial correta dos produtos perecíveis.
 2. **Lista Encadeada (`ListaComandas`):** Utilizada para gerenciar dinamicamente as comandas abertas e os itens vinculados a cada uma delas.
+3. **Lista Encadeada (`ListaHistorico`):** Utilizada para armazenar de forma sequencial o histórico permanente de comprovantes de pagamentos.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```text
-├── estruturas/         # Implementação manual de No, Fila e Lista
-├── modelos/            # Classes de domínio (Produto, Comanda, Pagamento)
-├── servicos/           # Regras de negócio (GerenciadorEstoque, Caixa)
-├── main.py             # Menu interativo do sistema
-└── README.md           # Documentação do projeto
+├── estruturas/         # Implementação manual de No, Fila e Listas (comandas e histórico)
+├── modelos/            # Classes de domínio (Produto, Comanda, ItemPedido, RegistroPagamento)
+├── servicos/           # Regras de negócio (GestorEstoque, Caixa)
+├── .gitignore          # Proteção para ignorar arquivos locais (.venv, dados.pkl e caches)
+├── main.py             # Menu interativo do sistema via terminal
+├── README.md           # Documentação do projeto
+└── requirements.txt    # Lista de dependências automatizadas para a faculdade
 ```
 
 ---
 
 ## 🚀 Como Executar o Projeto
 
+Siga os passos abaixo para rodar o sistema utilizando um ambiente virtual isolado local:
+
 1. Certifique-se de ter o Python 3 instalado.
-2. Instale as dependências necessárias:
+2. Crie e ative o ambiente virtual:
    ```bash
-   pip install faker
+   python -m venv .venv
+   
+   # No Windows (PowerShell):
+   .venv\Scripts\Activate.ps1
+   
+   # No Windows (Git Bash) ou Linux/Mac:
+   source .venv/Scripts/activate
    ```
-3. Execute o arquivo principal:
+3. Instale as dependências necessárias a partir do arquivo de requisitos:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Execute o arquivo principal:
    ```bash
    python main.py
    ```
