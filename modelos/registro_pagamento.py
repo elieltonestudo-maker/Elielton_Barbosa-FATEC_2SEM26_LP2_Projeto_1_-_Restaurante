@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-class RegistroPayment:
+class RegistroPagamento:
     def __init__(self, nome_pagador, numero_comanda, forma_pagamento, valor_total):
         self.nome_pagador = nome_pagador
         self.numero_comanda = int(numero_comanda)
