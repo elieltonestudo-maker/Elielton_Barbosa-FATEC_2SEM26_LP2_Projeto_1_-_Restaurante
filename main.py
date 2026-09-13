@@ -71,10 +71,6 @@ def popular_dados_falsos(gestor_estoque, caixa):
     print("[Faker]: Estoque abastecido por lotes e comandas iniciais abertas com sucesso!")
 
 def exibir_menu():
-    print("\n==================================================")
-    print("==================================================")
-    print("      SISTEMA DE GESTÃO RESTAURANTE * FATEC * ")
-    print("==================================================")
     print("1 - Abrir Nova Comanda")
     print("2 - Lançar Item na Comanda")
     print("3 - Consultar Consumo da Comanda")
@@ -84,8 +80,10 @@ def exibir_menu():
     print("7 - Relatório Financeiro de Vendas")
     print("8 - Relatório de Consumo por Cliente")
     print("9 - Forçar Carga de Dados Falsos (Faker)")
+    print("10 - Visualizar Cardápio do Restaurante")
+    print("11 - Alterar Quantidade de um Item") # <-- OPÇÃO para alterar quantidade de item na comanda
     print("0 - Salvar e Sair")
-    print("==================================================")
+
 
 def main():
     gestor_estoque, caixa = carregar_sistema()
@@ -118,6 +116,7 @@ def main():
                 comanda = caixa.comandas_ativas.buscar_por_numero(num)
                 
                 if comanda is None:
+                    print(f"\n[Bloqueado]: A comanda # {num} nao esta aberta ou nao existe no salao!")
                     continue
                 
                 print(f" -> Comanda ativa localizada! Cliente dono: {comanda.nome_cliente.upper()}")
@@ -144,7 +143,9 @@ def main():
                     continue
                 
                 if caixa.lancar_item_comanda(num, produto, qtd):
+                    print(f"\n[Sucesso]: {qtd}x '{produto}' adicionado(s) à comanda # {num} ( {comanda.nome_cliente} ).")
                 else:
+                    print("\n[Erro]: Nao foi possivel lancar. Verifique se o produto possui saldo suficiente.")
             except ValueError:
                 print("\n[Erro]: Entrada numérica inválida.")
 
@@ -192,7 +193,7 @@ def main():
                 
                 valor_pago = caixa.fechar_e_pagar(num, forma, pagador)
                 if valor_pago is not None:
-                    print(f"\n[Sucesso]: Comanda #{num} encerrada! Lotes de estoque atualizados por FIFO.")
+                    print(f"\n[Sucesso]: Comanda # {num} encerrada! Lotes de estoque atualizados por FIFO.")
                 else:
                     print("\n[Erro]: Falha ao processar o fechamento.")
             except ValueError:
@@ -223,9 +224,57 @@ def main():
 
         elif opcao == "8":
             caixa.gerar_relatorio_consumo()
-
+        
         elif opcao == "9":
             popular_dados_falsos(gestor_estoque, caixa)
+
+        elif opcao == "10":
+            # Aciona o gestor para listar todos os nós de produtos ativos
+            gestor_estoque.exibir_cardapio()
+
+        elif opcao == "11":
+            try:
+                num = int(input("Número da Comanda: "))
+                comanda = caixa.comandas_ativas.buscar_por_numero(num)
+                
+                if comanda is None:
+                    print(f"\n[Bloqueado]: A comanda #{num} não existe no salão.")
+                    continue
+                    
+                print(f" -> Editando consumo de: {comanda.nome_cliente.upper()}")
+                produto = input("Nome do Produto que deseja alterar: ").strip().lower()
+                
+                # 1. Varre os nós para verificar se o item realmente está na comanda
+                item_encontrado = False
+                atual = comanda.primeiro_item
+                while atual:
+                    if atual.nome_produto == produto:
+                        item_encontrado = True
+                        break
+                    atual = atual.proximo
+                    
+                if not item_encontrado:
+                    print(f"\n[Erro]: O produto '{produto}' não foi lançado nesta comanda.")
+                    continue
+                
+                # 2. Busca o saldo físico total atual do estoque
+                total_disponivel = gestor_estoque.obter_quantidade_total(produto)
+                nova_qtd = int(input(f"Disponíveis no Estoque: {total_disponivel}. Digite a NOVA Quantidade Total desejada: "))
+                
+                if nova_qtd <= 0:
+                    print("\n[Erro]: A quantidade deve ser maior que zero.")
+                    continue
+                
+                # 3. Remove o nó antigo reposicionando os ponteiros da comanda
+                comanda.remover_item(produto)
+                
+                # 4. Lança o produto novamente com a nova quantidade aplicando a trava de saldo
+                if caixa.lancar_item_comanda(num, produto, nova_qtd):
+                    print(f"\n[Sucesso]: Quantidade de '{produto}' atualizada para {nova_qtd}x com sucesso!")
+                else:
+                    print("\n[Erro]: Falha ao atualizar. O saldo do estoque não suporta a nova quantidade.")
+            except ValueError:
+                print("\n[Erro]: Entrada numérica inválida.")
 
         elif opcao == "0":
             print("\n[Aviso]: Salvando dados do restaurante...")
@@ -237,3 +286,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
