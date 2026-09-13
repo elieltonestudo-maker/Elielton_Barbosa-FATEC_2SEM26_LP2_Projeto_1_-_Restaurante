@@ -1,0 +1,209 @@
+# main.py
+
+import os
+import pickle
+from datetime import datetime, timedelta
+from faker import Faker
+
+from servicos.gestor_estoque import GestorEstoque
+from servicos.caixa import Caixa
+
+# Inicializa o Faker para gerar dados falsos em português do Brasil
+fake = Faker('pt_BR')
+ARQUIVO_DADOS = "dados.pkl"
+
+def salvar_sistema(gestor_estoque, caixa):
+    """Salva os estados atuais do estoque e do caixa usando Pickle."""
+    try:
+        with open(ARQUIVO_DADOS, "wb") as f:
+            pickle.dump((gestor_estoque, caixa), f)
+    except Exception as e:
+        print(f"\n[Erro ao salvar os dados]: {e}")
+
+def carregar_sistema():
+    """Carrega os dados salvos do Pickle ou cria novas instâncias se não existir."""
+    if os.path.exists(ARQUIVO_DADOS):
+        try:
+            with open(ARQUIVO_DADOS, "rb") as f:
+                return pickle.load(f)
+        except Exception:
+            print("\n[Aviso]: Arquivo de dados corrompido. Criando novo sistema.")
+    
+    # Se o arquivo não existir ou falhar, inicializa do zero
+    gestor = GestorEstoque()
+    caixa = Caixa(gestor)
+    return gestor, caixa
+
+def popular_dados_falsos(gestor_estoque, caixa):
+    """Gera dados iniciais fictícios usando a biblioteca Faker para testes rápidos."""
+    print("\n[Faker]: Populando o sistema com dados automáticos de teste...")
+    
+    # 1. Alimenta o estoque com alguns produtos padrão (lotes com datas variadas para testar o FIFO)
+    produtos_padrao = [
+        {"nome": "Hamburguer", "pc": 10.0, "pv": 25.0},
+        {"nome": "Lanche Natural", "pc": 8.0, "pv": 22.0},
+        {"nome": "Hot dog", "pc": 9.0, "pv": 23.5},
+        {"nome": "Refrigerante", "pc": 2.5, "pv": 6.0},
+        {"nome": "Batata Frita", "pc": 4.0, "pv": 15.0},
+        {"nome": "Suco Natural", "pc": 3.5, "pv": 8.0},
+        {"nome": "água mineral", "pc": 1.5, "pv": 4.5},
+        {"nome": "Cerveja", "pc": 4.0, "pv": 9.0}
+    ]
+    
+    hoje = datetime.now()
+    for prod in produtos_padrao:
+        # Cria 2 lotes diferentes para cada produto para provar a regra FIFO do professor
+        data_c1 = (hoje - timedelta(days=3)).strftime("%d/%m/%Y")
+        data_v1 = (hoje + timedelta(days=15)).strftime("%d/%m/%Y")
+        gestor_estoque.abastecer_produto(prod["nome"], prod["pc"], prod["pv"], data_c1, data_v1, 10)
+        
+        data_c2 = hoje.strftime("%d/%m/%Y")
+        data_v2 = (hoje + timedelta(days=20)).strftime("%d/%m/%Y")
+        gestor_estoque.abastecer_produto(prod["nome"], prod["pc"], prod["pv"], data_c2, data_v2, 15)
+            
+    # 2. Abre algumas comandas aleatórias com nomes de clientes gerados pelo Faker
+    for num_comanda in range(1, 4):
+        nome_cliente = fake.first_name()
+        caixa.abrir_comanda(num_comanda, nome_cliente)
+        # Lança um item inicial automático para teste
+        caixa.lancar_item_comanda(num_comanda, "Hamburguer", 1)
+
+    print("[Faker]: Estoque abastecido por lotes e comandas iniciais abertas com sucesso!")
+
+def exibir_menu():
+    print("\n=======================================")
+    print("      SISTEMA DE GESTÃO RESTAURANTE     ")
+    print("=======================================")
+    print("1 - Abrir Nova Comanda")
+    print("2 - Lançar Item na Comanda")
+    print("3 - Consultar Consumo da Comanda")
+    print("4 - Fechar e Pagar Comanda (Baixa FIFO)")
+    print("5 - Abastecer Estoque (Novo Lote)")
+    print("6 - Consultar Quantidade em Estoque")
+    print("7 - Relatório Financeiro de Vendas")
+    print("8 - Relatório de Consumo por Cliente")
+    print("9 - Forçar Carga de Dados Falsos (Faker)")
+    print("0 - Salvar e Sair")
+    print("=======================================")
+
+def main():
+    gestor_estoque, caixa = carregar_sistema()
+    
+    # Se o sistema acabou de ser criado do zero, popula automaticamente para facilitar os testes
+    if gestor_estoque.produtos_estoque is None:
+        popular_dados_falsos(gestor_estoque, caixa)
+
+    while True:
+        exibir_menu()
+        opcao = input("Escolha uma opção: ").strip()
+
+        if opcao == "1":
+            try:
+                num = int(input("Número da Comanda: "))
+                nome = input("Nome do Cliente: ").strip()
+                if nome == "":
+                    print("\n[Erro]: O nome do cliente não pode ser vazio.")
+                    continue
+                if caixa.abrir_comanda(num, nome):
+                    print(f"\n[Sucesso]: Comanda #{num} aberta para {nome}.")
+                else:
+                    print("\n[Erro]: Esta comanda já está ativa no salão.")
+            except ValueError:
+                print("\n[Erro]: Digite um número válido para a comanda.")
+
+        elif opcao == "2":
+            try:
+                num = int(input("Número da Comanda: "))
+                produto = input("Nome do Produto: ").strip()
+                qtd = int(input("Quantidade: "))
+                if qtd <= 0:
+                    print("\n[Erro]: A quantidade deve ser maior que zero.")
+                    continue
+                if caixa.lancar_item_comanda(num, produto, qtd):
+                    print(f"\n[Sucesso]: {qtd}x '{produto}' adicionado(s) à comanda #{num}.")
+                else:
+                    print("\n[Erro]: Verifique se a comanda existe ou se o produto tem lotes no estoque.")
+            except ValueError:
+                print("\n[Erro]: Entrada numérica inválida.")
+
+        elif opcao == "3":
+            try:
+                num = int(input("Número da Comanda: "))
+                comanda = caixa.comandas_ativas.buscar_por_numero(num)
+                if comanda:
+                    print(f"\n--- Comanda #{comanda.numero} - Cliente: {comanda.nome_cliente} ---")
+                    print(f"Abertura: {comanda.data_hora_abertura}")
+                    print("-" * 40)
+                    atual = comanda.primeiro_item
+                    while atual:
+                        print(f"{atual.quantidade}x {atual.nome_produto} | R$ {atual.preco_unitario:.2f} un")
+                        atual = atual.proximo
+                    print("-" * 40)
+                    print(f"Total Atual: R$ {comanda.calcular_total():.2f}")
+                else:
+                    print("\n[Erro]: Comanda não encontrada.")
+            except ValueError:
+                print("\n[Erro]: Digite um número válido.")
+
+        elif opcao == "4":
+            try:
+                num = int(input("Número da Comanda para Fechamento: "))
+                comanda = caixa.comandas_ativas.buscar_por_numero(num)
+                if comanda is None:
+                    print("\n[Erro]: Comanda não encontrada.")
+                    continue
+                    
+                total = comanda.calcular_total()
+                print(f"\nValor Total da Conta: R$ {total:.2f}")
+                print("Formas de Pagamento: PIX, Cartao, Dinheiro, Confianca")
+                forma = input("Digite a forma de pagamento: ").strip()
+                pagador = input("Nome de quem está pagando (Deixe vazio para o nome do cliente): ").strip()
+                if pagador == "":
+                    pagador = comanda.nome_cliente
+                
+                valor_pago = caixa.fechar_e_pagar(num, forma, pagador)
+                if valor_pago is not None:
+                    print(f"\n[Sucesso]: Comanda #{num} encerrada! Lotes de estoque atualizados por FIFO.")
+                else:
+                    print("\n[Erro]: Falha ao processar o fechamento.")
+            except ValueError:
+                print("\n[Erro]: Digite um número válido.")
+
+        elif opcao == "5":
+            try:
+                nome = input("Nome do Produto: ").strip()
+                pc = float(input("Preço de Compra (R$): "))
+                pv = float(input("Preço de Venda (R$): "))
+                qtd = int(input("Quantidade do Lote: "))
+                data_c = datetime.now().strftime("%d/%m/%Y")
+                validade = input("Data de Vencimento (DD/MM/AAAA): ").strip()
+                
+                gestor_estoque.abastecer_produto(nome, pc, pv, data_c, validade, qtd)
+                print(f"\n[Sucesso]: Novo lote de '{nome}' adicionado ao estoque.")
+            except ValueError:
+                print("\n[Erro]: Valores numéricos digitados incorretamente.")
+
+        elif opcao == "6":
+            nome = input("Nome do Produto para consulta: ").strip()
+            total = gestor_estoque.obter_quantity_total(nome) if hasattr(gestor_estoque, 'obter_quantity_total') else gestor_estoque.obter_quantidade_total(nome)
+            print(f"\nEstoque Atual de '{nome}': {total} unidades distribuídas em lotes.")
+
+        elif opcao == "7":
+            caixa.gerar_relatorio_vendas()
+
+        elif opcao == "8":
+            caixa.gerar_relatorio_consumo()
+
+        elif opcao == "9":
+            popular_dados_falsos(gestor_estoque, caixa)
+
+        elif opcao == "0":
+            print("\n[Aviso]: Salvando dados do restaurante...")
+            salvar_sistema(gestor_estoque, caixa)
+            print("Sistema fechado com segurança através do Pickle. Até logo!")
+            break
+        else:
+            print("\n[Erro]: Opção inválida. Tente novamente.")
+
+if __name__ == "__main__":
+    main()
