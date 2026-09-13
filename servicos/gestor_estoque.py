@@ -1,7 +1,7 @@
 # servicos/gestor_estoque.py
 
 from estruturas.no import No
-from estruturas.fila_estoque import Filaestoque
+from estruturas.fila_estoque import FilaEstoque
 from modelos.produto import Produto
 
 class NoEstoque:
@@ -63,7 +63,7 @@ def dar_baixa_itens(self, comanda):
                 fila.desenfileirar()  # Remove o lote esgotado da fila
             else:
                 # O lote atual tem mais do que o necessário; apenas subtrai a quantidade
-                produto_lote.quantidade -= produto_lote.quantidade
+                produto_lote.quantidade -= quantidade_necessaria
                 quantidade_necessaria = 0
                 
         item_atual = item_atual.proximo
