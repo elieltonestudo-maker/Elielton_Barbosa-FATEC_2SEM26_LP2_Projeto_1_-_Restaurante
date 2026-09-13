@@ -10,11 +10,11 @@ class ListaHistorico:
         """Insere um novo registro de pagamento no início da lista de histórico."""
         novo_no = No(registro_pagamento)
         novo_no.proximo = self.cabeca
-        self.cabeca = novo_no # Vai para a cabeça.
+        self.cabeca = novo_no
 
     def obter_todos(self):
         """Retorna um gerador para percorrer os registros sequencialmente na hora do relatório."""
         atual = self.cabeca
         while atual is not None:
             yield atual.conteudo
-            atual = atual.proximo # Avança para o próximo nó.
+            atual = atual.proximo
