@@ -21,29 +21,28 @@ class Caixa:
         return True
 
     def lancar_item_comanda(self, numero_comanda, nome_produto, quantidade):
-        """Busca o preço do produto no estoque e o adiciona na comanda do cliente com trava de saldo real."""
+        """Busca o preço do produto no estoque com trava de saldo reservado real."""
         comanda = self.comandas_ativas.buscar_por_numero(numero_comanda)
         if comanda is None:
-            return False  # Comanda não encontrada
+            return False
         
-        # PADRONIZAÇÃO: Força o nome do produto a ficar em minúsculo antes de buscar a fila
         nome_padrao = nome_produto.lower().strip()
         fila = self.gestor_estoque._buscar_ou_criar_fila(nome_padrao)
         
-        # Obtém a quantidade total física disponível atualmente somando os lotes
-        estoque_disponivel = self.gestor_estoque.obter_quantidade_total(nome_padrao)
+        # CALCULO DE SEGURANÇA BANCÁRIA:
+        estoque_fisico = self.gestor_estoque.obter_quantidade_total(nome_padrao)
+        ja_pedido_nas_mesas = self.obter_consumo_pendente_salao(nome_padrao)
+        saldo_real_livre = estoque_fisico - ja_pedido_nas_mesas
         
-        # --- TRAVA DE SALDO EM TEMPO REAL ---
-        # Bloqueia se o produto não tiver lotes ativos OU se o cliente pedir mais do que tem disponível
-        if fila.inicio is None or estoque_disponivel < int(quantidade):
-            print(f"\n[Bloqueado]: Saldo insuficiente! '{nome_produto}' possui apenas {estoque_disponivel} unidades no estoque.")
-            return False  # Rejeita o lançamento imediatamente
+        # Se o que o cliente quer agora for maior do que o saldo real livre, bloqueia!
+        if fila.inicio is None or saldo_real_livre < int(quantidade):
+            print(f"\n[Bloqueado]: Saldo insuficiente! Estoque possui {estoque_fisico}, mas {ja_pedido_nas_mesas} ja estao reservados em comandas abertas. Saldo livre: {saldo_real_livre}.")
+            return False
         
         preco_venda = fila.inicio.conteudo.preco_venda
-        
-        # Adiciona o item na comanda de forma encadeada apenas se passou na trava de quantidade
         comanda.adicionar_item(nome_padrao, quantidade, preco_venda)
         return True
+
 
 
     def fechar_e_pagar(self, numero_comanda, forma_pagamento, nome_pagador):
@@ -100,3 +99,21 @@ class Caixa:
             
         if contagem == 0:
             print("Nenhum histórico de consumo registrado.")
+
+    def obter_consumo_pendente_salao(self, nome_produto):
+        """Varre todas as comandas abertas somando a quantidade ja pedida de um produto."""
+        nome_busca = nome_produto.lower().strip()
+        total_pendente = 0
+        
+        # Percorre a lista encadeada de comandas ativas
+        comanda_atual = self.comandas_ativas.cabeca
+        while comanda_atual is not None:
+            # Percorre a lista encadeada de itens daquela comanda
+            item_atual = comanda_atual.conteudo.primeiro_item
+            while item_atual is not None:
+                if item_atual.nome_produto.lower().strip() == nome_busca:
+                    total_pendente += item_atual.quantidade
+                item_atual = item_atual.proximo
+            comanda_atual = comanda_atual.proximo
+            
+        return total_pendente

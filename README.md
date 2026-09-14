@@ -20,9 +20,11 @@ O objetivo principal é aplicar os conceitos de Orientação a Objetos e estrutu
 
 ## 🧠 Diferenciais Técnicos e Usabilidade (Homologados)
 
+- **Arquitetura Visual Isolada:** Separação estrita de responsabilidades (SoC) com a criação da classe `InterfaceUsuario` para gerenciar menus e painéis textuais, limpando o fluxo de controle do `main.py`.
+- **Cálculo de Saldo Reservado Líquido:** O sistema não consulta apenas os lotes físicos; ele calcula em tempo real o saldo disponível subtraindo o consumo pendente nas comandas abertas do salão, evitando vendas duplicadas.
 - **Suporte Completo a Case-Insensitive:** O sistema realiza a busca de nomes padronizados em minúsculas (`.lower().strip()`). O usuário pode digitar `HAMBURGUER`, `Hamburguer` ou `hamburguer` que o sistema reconhece e processa perfeitamente.
-- **Travas de Segurança:** Validação em tempo real para impedir o lançamento de produtos que não existem no cardápio ou que estão esgotados.
-- **Feedback Visual:** Exibição do nome do cliente em tempo real na tela ao selecionar a comanda para lançamento de itens ou no fechamento da conta.
+- **Travas de Segurança:** Validação em tempo real para impedir o lançamento de produtos que não existem no cardápio ou que ultrapassem o limite de estoque disponível.
+- **Feedback Visual Avançado:** Exibição detalhada de itens em consumo durante alterações (Opção 11) e do nome do cliente em tempo real na tela ao selecionar a comanda para lançamento ou fechamento.
 - **Robustez:** Tratamento de exceções com blocos `try/except` para impedir o fechamento repentino do terminal por digitação inválida (letras em campos de números).
 
 ---
@@ -41,7 +43,7 @@ Para atender às restrições do projeto e exercitar o encapsulamento, foram des
 ```text
 ├── estruturas/         # Implementação manual de No, Fila e Listas (comandas e histórico)
 ├── modelos/            # Classes de domínio (Produto, Comanda, ItemPedido, RegistroPagamento)
-├── servicos/           # Regras de negócio (GestorEstoque, Caixa)
+├── servicos/           # Regras de negócio (GestorEstoque, Caixa, InterfaceUsuario)
 ├── .gitignore          # Proteção para ignorar arquivos locais (.venv, dados.pkl e caches)
 ├── main.py             # Menu interativo do sistema via terminal
 ├── README.md           # Documentação do projeto

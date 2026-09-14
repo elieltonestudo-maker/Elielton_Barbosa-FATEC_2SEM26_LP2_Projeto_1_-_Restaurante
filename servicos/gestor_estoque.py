@@ -71,3 +71,26 @@ class GestorEstoque:
             total += atual.conteudo.quantidade
             atual = atual.proximo
         return total
+    
+    def exibir_cardapio(self):
+        """Varre a lista encadeada de estoques e mostra os produtos cadastrados e seus preços."""
+        print("\n" + "-"*40)
+        print("         --- CARDÁPIO DO DIA ---        ")
+        print("-"*40)
+        
+        atual = self.produtos_estoque
+        contagem = 0
+        
+        while atual is not None:
+            # Pega o primeiro lote da fila para espiar o preço de venda atual do produto
+            fila_produto = atual.fila
+            if fila_produto.inicio is not None:
+                preco_venda = fila_produto.inicio.conteudo.preco_venda
+                # Formata a primeira letra em maiúscula apenas na hora de exibir na tela (.capitalize())
+                print(f" * {atual.nome_produto.capitalize():<20} | R$ {preco_venda:.2f}")
+                contagem += 1
+            atual = atual.proximo
+            
+        if contagem == 0:
+            print("Nenhum produto cadastrado no cardápio até o momento.")
+        print("-"*40)
