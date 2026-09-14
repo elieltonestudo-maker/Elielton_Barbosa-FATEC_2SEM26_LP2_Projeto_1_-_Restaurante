@@ -38,6 +38,7 @@ class GestorEstoque:
         novo_lote = Produto(nome.lower(), preco_compra, preco_venda, data_compra, data_vencimento, quantidade)
         fila = self._buscar_ou_criar_fila(nome)
         fila.enfileirar(novo_lote)
+        #fila.enfileirar_por_vencimento(novo_lote) # Caso use a política FEFO, descomente esta linha e comente a linha acima
 
     def dar_baixa_itens(self, comanda):
         item_atual = comanda.primeiro_item
