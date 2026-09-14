@@ -31,4 +31,6 @@ class InterfaceUsuario:
         print(" * hot dog          * refrigerante    ")
         print(" * batata frita     * suco natural    ")
         print(" * agua mineral     * cerveja         ")
+        print(" * pizza            * pudim           ")
+        print(" * porção calabresa  ")                 
         print("---------------------------------------")
