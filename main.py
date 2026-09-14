@@ -199,8 +199,12 @@ def main():
                 print("\n[Erro]: Valores numéricos digitados incorretamente.")
 
         elif opcao == "6":
+            # 1. Painel visual do cardápio para guiar o usuário
             InterfaceUsuario.exibir_painel_cardapio()
-            nome = input("Nome do Produto para consulta: ").strip().lower()
+            nome = input("Nome do Produto para consulta analítica: ").strip().lower()
+            
+            # 2. Localiza a fila do produto na estrutura encadeada
+            fila = gestor_estoque._buscar_ou_criar_fila(nome)
             
             estoque_fisico = gestor_estoque.obter_quantidade_total(nome)
             em_consumo = caixa.obter_consumo_pendente_salao(nome)
@@ -211,9 +215,26 @@ def main():
             print(f"=======================================")
             print(f" • Total Físico (Lotes):     {estoque_fisico} un")
             print(f" • Reservado nas Mesas:     {em_consumo} un")
-            print(f" -------------------------------------")
             print(f" -> Saldo Disponível Livre:  {saldo_livre} un")
+            print(f"---------------------------------------")
+            print(f"         DETALHAMENTO DE LOTES (FIFO)  ")
+            print(f"---------------------------------------")
+            
+            # --- VARREDURA DA FILA DE LOTES USANDO OS PONTEIROS MANUAIS ---
+            lote_atual = fila.inicio
+            contador_lote = 1
+            
+            while lote_atual is not None:
+                produto_lote = lote_atual.conteudo
+                print(f" Lote #{contador_lote} | Qtd: {produto_lote.quantidade:<3} un | Compra: {produto_lote.data_compra} | Venc: {produto_lote.data_vencimento}")
+                lote_atual = lote_atual.proximo
+                contador_lote += 1
+                
+            if fila.inicio is None:
+                print(" [Aviso]: Nenhum lote ativo encontrado para este produto.")
+                
             print(f"=======================================")
+
 
         elif opcao == "7":
             caixa.gerar_relatorio_vendas()
