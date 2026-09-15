@@ -57,25 +57,55 @@ Para atender às restrições do projeto e exercitar o encapsulamento, foram des
 
 Siga os passos abaixo para rodar o sistema utilizando um ambiente virtual isolado local:
 
-1. Certifique-se de ter o Python 3 instalado.
-2. Crie e ative o ambiente virtual:
+### Pré-requisitos
+- [Python 3.10+](https://www.python.org/downloads/) instalado
+- [Git](https://git-scm.com/downloads) instalado
+
+### Passo a passo
+
+1. **Clone o repositório e entre na pasta:**
+   ```bash
+   git clone https://github.com/elieltonestudo-maker/Elielton_Barbosa-FATEC_2SEM26_LP2_Projeto_1_-_Restaurante.git
+   cd Elielton_Barbosa-FATEC_2SEM26_LP2_Projeto_1_-_Restaurante
+   ```
+
+2. **Crie o ambiente virtual:**
    ```bash
    python -m venv .venv
-   
-   # No Windows (PowerShell):
-   .venv\Scripts\Activate.ps1
-   
-   # No Windows (Git Bash) ou Linux/Mac:
-   source .venv/Scripts/activate
    ```
-3. Instale as dependências necessárias a partir do arquivo de requisitos:
+
+3. **Ative o ambiente virtual conforme o seu sistema:**
+   - **Windows (PowerShell):**
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+   - **Windows (Git Bash):**
+     ```bash
+     source .venv/Scripts/activate
+     ```
+   - **Linux / Mac:**
+     ```bash
+     source .venv/bin/activate
+     ```
+
+   > ⚠️ **Se der erro de permissão no PowerShell**, execute uma vez:
+   > ```powershell
+   > Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   > ```
+
+4. **Instale as dependências:**
    ```bash
    pip install -r requirements.txt
    ```
-4. Execute o arquivo principal:
+
+5. **Execute o programa:**
    ```bash
    python main.py
    ```
+
+> 💡 **Dica:** sempre ative o ambiente virtual (`.venv`) antes de executar `python main.py`,
+> caso contrário as dependências instaladas não serão encontradas.
+
 
 ---
 
