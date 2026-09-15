@@ -83,3 +83,24 @@ Siga os passos abaixo para rodar o sistema utilizando um ambiente virtual isolad
 - **Nome:** Elielton Barbosa
 - **Instituição:** Fatec Rio Claro
 - **Data de Apresentação:** 17/09/2026 às 07h50
+
+---
+
+## 📊 Roteiro Sugerido para Teste e Validação 
+
+Para comprovar o funcionamento de todas as regras de negócio e o controle das estruturas dinâmicas manuais, sugere-se seguir o seguinte roteiro no terminal:
+
+1. **Verificar os Clientes Automáticos (`Opção 3`):** 
+   - Escolha a opção `3` e digite o número `1`. Você verá o primeiro cliente aleatório gerado pelo *Faker*.
+   - Repita a consulta para as comandas `2` e `3`. O sistema provará que gerou **nomes diferentes**, mas que todos iniciam com **1x hambúrguer** lançado na conta para testar o fluxo.
+
+2. **Auditar as Reservas no Estoque (`Opção 6`):**
+   - Escolha a opção `6` e consulte o produto `hamburguer`. 
+   - O painel exibirá que existem **3 unidades reservadas nas mesas** (1 de cada cliente ativo), demonstrando o cálculo de saldo líquido em tempo real antes da baixa física.
+
+3. **Demonstrar a Baixa FIFO (`Opção 4`):**
+   - Escolha a opção `4` e faça o fechamento da comanda `1`.
+   - Volte na opção `6` e consulte o `hamburguer` novamente. Você verá que o lote mais antigo decrementou fisicamente, provando o funcionamento da estrutura `FilaEstoque` (PEPS).
+
+4. **Testar a Extensão FEFO (Carta na Manga):**
+   - Os módulos `fila_estoque.py` e `gestor_estoque.py` contêm a lógica de ordenação por prioridade de vencimento (FEFO) comentada nativamente, pronta para ser ativada caso seja solicitado pelo professor Orlando.
