@@ -26,7 +26,7 @@ O objetivo principal é aplicar os conceitos de Orientação a Objetos e estrutu
 - **Travas de Segurança:** Validação em tempo real para impedir o lançamento de produtos que não existem no cardápio ou que ultrapassem o limite de estoque disponível.
 - **Feedback Visual Avançado:** Exibição detalhada de itens em consumo durante alterações (Opção 11) e do nome do cliente em tempo real na tela ao selecionar a comanda para lançamento ou fechamento.
 - **Robustez:** Tratamento de exceções com blocos `try/except` para impedir o fechamento repentino do terminal por digitação inválida (letras em campos de números).
-- **Preparação para Extensão FEFO (PVPS):** Embora o escopo exija a ordenação cronológica de compras (FIFO), a estrutura de armazenamento foi projetada para suportar a transição para a política FEFO (First Expired, First Out). O código para conversão da estrutura em uma Fila de Prioridades Ordenada por Vencimento encontra-se mapeado e documentado nativamente no módulo de infraestrutura (fila_estoque.py e gestor_estoque.py).
+- **Preparação para Extensão FEFO (PVPS):** Embora o escopo exija a ordenação cronológica de compras (FIFO), a estrutura de armazenamento foi projetada para suportar a transição para a política FEFO (First Expired, First Out). O código para conversão da estrutura em uma Fila de Prioridades Ordenada por Vencimento encontra-se mapeado e documentado nativamente no módulo de infraestrutura (estruturas/fila_estoque.py e servicos/gestor_estoque.py).
 
 ---
 

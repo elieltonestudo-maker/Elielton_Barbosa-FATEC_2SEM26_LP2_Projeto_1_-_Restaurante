@@ -1,4 +1,4 @@
-# main.py 
+# main.py
 
 import os
 import pickle
@@ -9,20 +9,19 @@ from servicos.gestor_estoque import GestorEstoque
 from servicos.interface import InterfaceUsuario
 from servicos.caixa import Caixa
 
-# Inicializa o Faker para gerar dados falsos em português do Brasil
 fake = Faker('pt_BR')
 ARQUIVO_DADOS = "dados.pkl"
 
 def salvar_sistema(gestor_estoque, caixa):
-    """Salva os estados atuais do estoque e do caixa usando Pickle."""
+    # salva as estruturas no arquivo local
     try:
         with open(ARQUIVO_DADOS, "wb") as f:
             pickle.dump((gestor_estoque, caixa), f)
     except Exception as e:
-        print(f"\n[Erro ao salvar os dados]: {e}")
+        print(f"\n[Erro]: Falha ao salvar os dados: {e}")
 
 def carregar_sistema():
-    """Carrega os dados salvos do Pickle ou cria novas instâncias se não existir."""
+    # busca o arquivo salvo ou inicia o sistema limpo
     if os.path.exists(ARQUIVO_DADOS):
         try:
             with open(ARQUIVO_DADOS, "rb") as f:
@@ -30,16 +29,14 @@ def carregar_sistema():
         except Exception:
             print("\n[Aviso]: Arquivo de dados corrompido. Criando novo sistema.")
     
-    # Se o arquivo não existir ou falhar, inicializa do zero
     gestor = GestorEstoque()
     caixa = Caixa(gestor)
     return gestor, caixa
 
 def popular_dados_falsos(gestor_estoque, caixa):
-    """Gera dados iniciais fictícios usando a biblioteca Faker para testes rápidos."""
-    print("\n[Faker]: Populando o sistema com dados automáticos de teste...")
+    # carrega os produtos e as comandas de teste usando o faker
+    print("\n[Aviso]: Populando o sistema com dados automáticos de teste...")
     
-    # Padronizado para minúsculas para consistência com o sistema case-insensitive
     produtos_padrao = [
         {"nome": "hamburguer", "pc": 10.0, "pv": 25.0},
         {"nome": "lanche natural", "pc": 8.0, "pv": 22.0},
@@ -56,7 +53,7 @@ def popular_dados_falsos(gestor_estoque, caixa):
     
     hoje = datetime.now()
     for prod in produtos_padrao:
-        # Cria 2 lotes diferentes para cada produto para provar a regra FIFO do professor
+        # cria dois lotes por produto para testar o critério da fila
         data_c1 = (hoje - timedelta(days=3)).strftime("%d/%m/%Y")
         data_v1 = (hoje + timedelta(days=15)).strftime("%d/%m/%Y")
         gestor_estoque.abastecer_produto(prod["nome"], prod["pc"], prod["pv"], data_c1, data_v1, 10)
@@ -65,25 +62,21 @@ def popular_dados_falsos(gestor_estoque, caixa):
         data_v2 = (hoje + timedelta(days=20)).strftime("%d/%m/%Y")
         gestor_estoque.abastecer_produto(prod["nome"], prod["pc"], prod["pv"], data_c2, data_v2, 15)
             
-    # 2. Abre algumas comandas aleatórias com nomes de clientes gerados pelo Faker
     for num_comanda in range(1, 4):
         nome_cliente = fake.first_name()
         caixa.abrir_comanda(num_comanda, nome_cliente)
-        # Lança o item padrão também em letras minúsculas
         caixa.lancar_item_comanda(num_comanda, "hamburguer", 1)
 
-    print("[Faker]: Estoque abastecido por lotes e comandas iniciais abertas com sucesso!")
-    
+    print("[Sucesso]: Estoque abastecido por lotes e comandas iniciais abertas!")
+
 
 def main():
     gestor_estoque, caixa = carregar_sistema()
     
-    # Se o sistema acabou de ser criado do zero, popula automaticamente para facilitar os testes
     if gestor_estoque.produtos_estoque is None:
         popular_dados_falsos(gestor_estoque, caixa)
 
     while True:
-        # Utiliza a nova classe de interface isolada
         InterfaceUsuario.exibir_menu()
         opcao = input("Escolha uma opção: ").strip()
 
@@ -95,7 +88,7 @@ def main():
                     print("\n[Erro]: O nome do cliente não pode ser vazio.")
                     continue
                 if caixa.abrir_comanda(num, nome):
-                    print(f"\n[Sucesso]:  {num} aberta para {nome}.")
+                    print(f"\n[Sucesso]: Comanda # {num} aberta para {nome}.")
                 else:
                     print("\n[Erro]: Esta comanda já está ativa no salão.")
             except ValueError:
@@ -113,17 +106,15 @@ def main():
                 print(f" -> Comanda ativa localizada! Cliente dono: {comanda.nome_cliente.upper()}")
                 print("-" * 40)
                 
-                # Utiliza a nova classe para desenhar o cardápio
                 InterfaceUsuario.exibir_painel_cardapio()
                 
                 produto = input("Nome do Produto do Cardápio: ").strip().lower()
                 
-                # BUSCA O SALDO REAL LIVRE (Estoque físico menos o que já está nas mesas)
+                # calcula o saldo livre subtraindo o que ja foi pedido no salao
                 estoque_bruto = gestor_estoque.obter_quantidade_total(produto)
                 reservado = caixa.obter_consumo_pendente_salao(produto)
                 total_disponivel = estoque_bruto - reservado
                 
-                # SOLICITA A QUANTIDADE JÁ EXIBINDO O SALDO REAL LIVRE
                 qtd = int(input(f"Disponíveis: {total_disponivel}, Digite a Quantidade: "))
                 
                 if qtd <= 0:
@@ -199,12 +190,8 @@ def main():
                 print("\n[Erro]: Valores numéricos digitados incorretamente.")
 
         elif opcao == "6":
-            # 1. Painel visual do cardápio para guiar o usuário
             InterfaceUsuario.exibir_painel_cardapio()
-            nome = input("Nome do Produto para consulta analítica: ").strip().lower()
-            
-            # 2. Localiza a fila do produto na estrutura encadeada
-            fila = gestor_estoque._buscar_ou_criar_fila(nome)
+            nome = input("Nome do Produto para consulta: ").strip().lower()
             
             estoque_fisico = gestor_estoque.obter_quantidade_total(nome)
             em_consumo = caixa.obter_consumo_pendente_salao(nome)
@@ -215,26 +202,9 @@ def main():
             print(f"=======================================")
             print(f" • Total Físico (Lotes):     {estoque_fisico} un")
             print(f" • Reservado nas Mesas:     {em_consumo} un")
+            print(f" -------------------------------------")
             print(f" -> Saldo Disponível Livre:  {saldo_livre} un")
-            print(f"---------------------------------------")
-            print(f"         DETALHAMENTO DE LOTES (FIFO)  ")
-            print(f"---------------------------------------")
-            
-            # --- VARREDURA DA FILA DE LOTES USANDO OS PONTEIROS MANUAIS ---
-            lote_atual = fila.inicio
-            contador_lote = 1
-            
-            while lote_atual is not None:
-                produto_lote = lote_atual.conteudo
-                print(f" Lote #{contador_lote} | Qtd: {produto_lote.quantidade:<3} un | Compra: {produto_lote.data_compra} | Venc: {produto_lote.data_vencimento}")
-                lote_atual = lote_atual.proximo
-                contador_lote += 1
-                
-            if fila.inicio is None:
-                print(" [Aviso]: Nenhum lote ativo encontrado para este produto.")
-                
             print(f"=======================================")
-
 
         elif opcao == "7":
             caixa.gerar_relatorio_vendas()
@@ -296,11 +266,12 @@ def main():
                     print("\n[Erro]: A quantidade deve ser maior que zero.")
                     continue
                 
+                # guarda o valor antigo para seguranca caso o novo lançamento falhe
                 qtd_antiga = atual.quantidade
                 comanda.remover_item(produto)
                 
                 if caixa.lancar_item_comanda(num, produto, nova_qtd):
-                    print(f"\n[Sucesso]: Quantidade de '{produto}' updated para {nova_qtd}x com sucesso!")
+                    print(f"\n[Sucesso]: Quantidade de '{produto}' atualizada para {nova_qtd}x com sucesso!")
                 else:
                     caixa.lancar_item_comanda(num, produto, qtd_antiga)
                     print("\n[Erro]: Falha ao atualizar. O saldo livre do estoque não suporta a nova quantidade.")

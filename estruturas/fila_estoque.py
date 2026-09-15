@@ -4,12 +4,12 @@ from estruturas.no import No
 
 class FilaEstoque:
     def __init__(self):
-        self.inicio = None      # Aponta para o lote mais antigo
-        self.fim = None         # Aponta para o lote mais recente
+        self.inicio = None      # vaip/ lote mais antigo
+        self.fim = None         # vai p/ lote mais recente
         self.total_itens = 0
 
     def enfileirar(self, produto):
-        """Adiciona um novo lote no fim da fila (reabastecimento)."""
+        # bota o lote novo no fim da fila
         novo_no = No(produto)
         if self.fim is None:
             self.inicio = novo_no
@@ -20,7 +20,7 @@ class FilaEstoque:
         self.total_itens += 1
 
     def desenfileirar(self):
-        """Remove e retorna o lote mais antigo do início da fila (baixa por venda)."""
+        # tira o mais antigo do comeco
         if self.inicio is None:
             return None
         
@@ -40,15 +40,22 @@ class FilaEstoque:
         return self.total_itens == 0
 
     
-    '''Se o restaurante necessitar mudar a regra de negócio de FIFO (Ordem de Compra)
-     para FEFO (First Expired, First Out - Primeiro que Vence, Primeiro que Sai), 
-     a estrutura deixa de ser uma Fila Comum O(1) e passa a ser uma Fila de Prioridades.
+    '''Rascunho do método FEFO (por vencimento).    
+    --->> Para fazer a mudança para o FeFo:
+
+     1-Passo: começe retirando o comentario do metodo enfileirar_por_vencimento (self, produto) nesse arquivo logo abaixo dessa explicação.,
+
+     2-Passo: vá até o arquivo servicos/gestor_estoque.py e substitua a chamada 'fila.enfileirar(novo_lote)' 
+     por esta 'fila.enfileirar_por_vencimento(novo_lote)'
+
+       abaixo no método 'abastecer_produto' do GestorEstoque.
+
+     3-Rode o programa e faça testes de abastecimento.  
     
-     Para ativar, bastaria substituir a chamada 'fila.enfileirar(novo_lote)' por esta 'fila.enfileirar_por_vencimento(novo_lote)' lógica abaixo
-     no método 'abastecer_produto' do GestorEstoque:'''
+    '''
     
-'''
-    def enfileirar_por_vencimento(self, produto):
+
+    '''def enfileirar_por_vencimento(self, produto):
         """Insere o novo lote na posição correta da fila ordenada por vencimento."""
         novo_no = No(produto)
         from datetime import datetime

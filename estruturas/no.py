@@ -2,5 +2,5 @@
 
 class No:
     def __init__(self, conteudo):
-        self.conteudo = conteudo  # Guarda o objeto (Comanda, Lote de Produto, etc.)
-        self.proximo = None       # Ponteiro para o próximo nó
+        self.conteudo = conteudo  # usado p/ armazenar o ojeto ao no
+        self.proximo = None       # aponta para o próximo nó

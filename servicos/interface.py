@@ -2,8 +2,7 @@
 
 class InterfaceUsuario:
     @staticmethod
-    def exibir_menu():
-        """Exibe o painel visual do menu interativo via terminal."""
+    def exibir_menu():       
         print("\n=======================================")
         print("      SISTEMA DE GESTÃO RESTAURANTE     ")
         print("=======================================")
@@ -22,8 +21,7 @@ class InterfaceUsuario:
         print("=======================================")
 
     @staticmethod
-    def exibir_painel_cardapio():
-        """Exibe as opções de texto fixas do cardápio para guiar o usuário."""
+    def exibir_painel_cardapio():        
         print("\n---------------------------------------")
         print("           CARDÁPIO DISPONÍVEL         ")
         print("---------------------------------------")
