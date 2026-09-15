@@ -132,5 +132,6 @@ Para comprovar o funcionamento de todas as regras de negócio e o controle das e
    - Escolha a opção `4` e faça o fechamento da comanda `1`.
    - Volte na opção `6` e consulte o `hamburguer` novamente. Você verá que o lote mais antigo decrementou fisicamente, provando o funcionamento da estrutura `FilaEstoque` (PEPS).
 
-4. **Testar a Extensão FEFO (Carta na Manga):**
-   - Os módulos `fila_estoque.py` e `gestor_estoque.py` contêm a lógica de ordenação por prioridade de vencimento (FEFO) comentada nativamente, pronta para ser ativada caso seja solicitado pelo professor Orlando.
+4. **Validar a Escalabilidade para Política FEFO (PVPS):**
+   - Os módulos `fila_estoque.py` e `gestor_estoque.py` contêm a implementação para conversão da estrutura em uma Fila de Prioridades ordenada por vencimento. O trecho encontra-se documentado nativamente e pronto para ser ativado como prova de conceito para otimização de produtos perecíveis, caso seja solicitado pelo professor Orlando.
+
